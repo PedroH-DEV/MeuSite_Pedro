@@ -4,7 +4,7 @@ import requests
 from io import BytesIO
 
 # Carregando a imagem a partir da URL
-url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8aa0IZFQ8QgRXejr2v_YOivOKzpoR80gRu5LBAIsVNnz5Q5PBGCQ1MU_PoSUhvlnEYgE&usqp=CAU"
+url = "https://cdn-app-privally-io.s3.amazonaws.com/env/suite/images/context/asset/centrals/0003/00002667/darkLogo/20211228211245.png"
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
 
