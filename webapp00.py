@@ -4,7 +4,7 @@ import requests
 from io import BytesIO
 
 # Carregando a imagem a partir da URL
-url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRTTIDwib3TUNXUOFc6gCmXQJwtbqFdtNpJpsllc96pVLRvIaGzw_Q8wG-RuvEUqniSoo&usqp=CAU"
+url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ8aa0IZFQ8QgRXejr2v_YOivOKzpoR80gRu5LBAIsVNnz5Q5PBGCQ1MU_PoSUhvlnEYgE&usqp=CAU"
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
 
