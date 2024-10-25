@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
-    page_title="Santa Angela - Lugar de Morar Bem",
+    page_title="Santa Angela - TOP",
     page_icon="🏠",
     layout="wide"
 )
