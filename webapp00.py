@@ -33,7 +33,7 @@ def obter_precos():
     }
 
 # Imagem principal (URL fornecido)
-img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
+img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
 img = carregar_imagem(img_url, width=600)
 
 # Adicionando título e imagem principal
@@ -130,10 +130,12 @@ if st.button("Calcular Blocos Necessários"):
         # Estilizar a última linha (Total) em vermelho
         def highlight_total(val):
             if val == resultados["Custo Total (R$)"].iloc[-1]:
-                return 'color: red'
+                return 'color: Blue'
             return ''
 
         st.table(resultados.style.applymap(highlight_total, subset=['Custo Total (R$)']))
 
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+
+
