@@ -22,7 +22,7 @@ def carregar_imagem(url):
         return None
 
 # Imagem principal (URL fornecido)
-img_url = "https://braverengenharia.com/wp-content/uploads/2024/04/A-importancia-dos-materiais-para-a-engenharia-civil-2.png"
+img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
 img = carregar_imagem(img_url)
 
 # Adicionando título e imagem principal
@@ -55,3 +55,4 @@ if st.button("Calcular Blocos Necessários"):
         st.write(f"Resistência dos blocos: Blocos de concreto padrão possuem uma resistência de 6 a 10 MPa.")
     else:
         st.error("Por favor, insira valores válidos para a largura e altura da parede.")
+
