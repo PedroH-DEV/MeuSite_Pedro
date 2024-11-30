@@ -130,7 +130,7 @@ if st.button("Calcular Blocos Necessários"):
         # Estilizar a última linha (Total) em vermelho
         def highlight_total(val):
             if val == resultados["Custo Total (R$)"].iloc[-1]:
-                return 'color: Blue'
+                return 'color: Red'
             return ''
 
         st.table(resultados.style.applymap(highlight_total, subset=['Custo Total (R$)']))
