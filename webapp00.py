@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import requests
 from io import BytesIO
 import datetime
@@ -13,16 +13,22 @@ st.set_page_config(
 
 # Função para carregar imagens a partir de URLs
 def carregar_imagem(url):
-    response = requests.get(url)
-    return Image.open(BytesIO(response.content))
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Verifica se o pedido foi bem-sucedido
+        return Image.open(BytesIO(response.content))
+    except (requests.exceptions.RequestException, UnidentifiedImageError) as e:
+        st.error(f"Erro ao carregar a imagem: {e}")
+        return None
 
 # Imagem principal
-img_url = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fbraverengenharia.com%2Fmateriais-mais-usados-na-engenharia-civil%2F&psig=AOvVaw0qo36BK05TC5Fsn2KdTTCH&ust=1733081763055000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCPihofDmhIoDFQAAAAAdAAAAABAE"
+img_url = "https://via.placeholder.com/150"  # Use um URL de imagem válido
 img = carregar_imagem(img_url)
 
 # Adicionando título e imagem principal
 st.title("👷🏼‍♂️ Quer visitar nossa obra? | Realize seu cadastro:")
-st.image(img, use_column_width=True)
+if img:
+    st.image(img, use_column_width=True)
 
 # Criando campos de cadastro
 st.header("Preencha o formulário abaixo:")
@@ -40,6 +46,9 @@ if st.button("Enviar Cadastro"):
                f"Nome completo: {nome_completo}\n"
                f"E-mail: {email}\n"
                f"Telefone: {telefone}\n"
+               f"Data da visita: {data_visita}\n"
+               f"Cargo: {cargo}\n"
+               f"Empresa: {empresa}")
                f"Data da visita: {data_visita}\n"
                f"Cargo: {cargo}\n"
                f"Empresa: {empresa}")
