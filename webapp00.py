@@ -33,7 +33,7 @@ def obter_precos():
     }
 
 # Imagem principal (URL fornecido)
-img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
+img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
 img = carregar_imagem(img_url, width=600)
 
 # Adicionando título e imagem principal
@@ -128,12 +128,10 @@ if st.button("Calcular Blocos Necessários"):
         })
 
         # Estilizar a última linha (Total) em vermelho
-        def highlight_total(val):
-            if val == resultados["Custo Total (R$)"].iloc[-1]:
-                return 'background-color: yellow; color: red; font-weight: bold'
-            return ''
+        def highlight_total(row):
+            return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
 
-        st.table(resultados.style.applymap(highlight_total, subset=pd.IndexSlice[-1, :]))
+        st.table(resultados.style.apply(highlight_total, axis=1))
 
         # Adicionar link para compra dos materiais
         st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
