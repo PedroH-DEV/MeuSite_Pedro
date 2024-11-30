@@ -23,7 +23,7 @@ def carregar_imagem(url):
 
 # Função para obter preços médios (simulação)
 def obter_precos():
-    # Vamos simular uma API que retorna os preços médios dos materiais
+    # Simulação de preços médios dos materiais
     return {
         "custo_bloco": 5.0,  # R$ por bloco
         "custo_canaleta": 6.0,  # R$ por canaleta
@@ -48,17 +48,15 @@ espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", 
 
 # Dimensões dos blocos e canaletas (em metros)
 blocos = {
-    "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0},
-    "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0},
-    "Bloco estrutural 14 x 19 x 34cm": {"largura": 0.34, "altura": 0.19, "quantidade": 0},
-    "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "quantidade": 0},
-    "Bloco estrutural 14 x 19 x 14cm": {"largura": 0.14, "altura": 0.19, "quantidade": 0},
-    "Bloco estrutural 14 x 19 x 19cm": {"largura": 0.19, "altura": 0.19, "quantidade": 0}
+    "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhsTOAT5hTiZ8dSyQCYxJqhCT0lnBHHcJu1Q&s"},
+    "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"},
+    "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Bloco-44-Desenho-t%C3%A9cnico.jpg"},
+    "Bloco estrutural 14 x 19 x 14cm": {"largura": 0.14, "altura": 0.19, "quantidade": 0, "imagem": "https://orcamentor.com/media/insumos/44904.png"}
 }
 
 canaletas = {
-    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0},
-    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0}
+    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
+    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
 }
 
 # Cálculo do número de blocos e canaletas necessários
@@ -91,10 +89,12 @@ if st.button("Calcular Blocos Necessários"):
 
         for tipo_bloco, dimensoes in blocos.items():
             st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
+            st.image(dimensoes["imagem"], caption=tipo_bloco, use_column_width=True)
             custo_total_blocos += dimensoes["quantidade"] * custo_bloco
 
         for tipo_canaleta, dimensoes in canaletas.items():
             st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
+            st.image(dimensoes["imagem"], caption=tipo_canaleta, use_column_width=True)
             custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
         custo_total_argamassa = volume_reboco * custo_argamassa
