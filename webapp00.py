@@ -111,18 +111,23 @@ if st.button("Calcular Blocos Necessários"):
 
             custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
+        # Exibir resultado da argamassa lado a lado com a imagem
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(imagem_argamassa, width=150)
+        with col2:
+            st.write(f"Argamassa: {volume_reboco:.2f} m³")
+
         custo_total_argamassa = volume_reboco * custo_argamassa
 
-        st.write(f"Você precisará de aproximadamente {volume_reboco:.2f} m³ de argamassa para reboco.")
-        st.image(imagem_argamassa, width=150)
-
         # Mostrar resultados totais em forma de tabela
-        st.header("Resumo dos Custos")
+        st.header("💵 Resumo dos Custos")
         resultados = pd.DataFrame({
             "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-            "Custo Total (R$)": [custo_total_blocos, custo_total_canaletas, custo_total_argamassa, custo_total_blocos + custo_total_canaletas + custo_total_argamassa]
+            "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
         })
-        st.table(resultados)
+        # Destacar o total
+        st.table(resultados.style.applymap(lambda x: 'color: red' if x == resultados.iloc[-1, 1] else '', subset=pd.IndexSlice[-1, :]))
 
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
