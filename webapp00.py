@@ -88,26 +88,33 @@ if st.button("Calcular Blocos Necessários"):
         custo_total_blocos = 0
         custo_total_canaletas = 0
 
-        cols = st.columns(2)
-        
+        # Exibir imagens e quantidades lado a lado
         for tipo_bloco, dimensoes in blocos.items():
-            with cols[0]:
-                st.image(dimensoes["imagem"], caption=tipo_bloco, width=150)
-                st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
-                custo_total_blocos += dimensoes["quantidade"] * custo_bloco
-        
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.image(dimensoes["imagem"], width=150)
+            with col2:
+                st.write(f"{dimensoes['quantidade']} blocos")
+
+            custo_total_blocos += dimensoes["quantidade"] * custo_bloco
+
         for tipo_canaleta, dimensoes in canaletas.items():
-            with cols[1]:
-                st.image(dimensoes["imagem"], caption=tipo_canaleta, width=150)
-                st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
-                custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.image(dimensoes["imagem"], width=150)
+            with col2:
+                st.write(f"{dimensoes['quantidade']} canaletas")
+
+            custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
         custo_total_argamassa = volume_reboco * custo_argamassa
 
+        # Mostrar resultados totais em forma de tabela
+        st.header("Resumo dos Custos")
+        st.table(pd.DataFrame({
+            "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
+            "Custo Total (R$)": [custo_total_blocos, custo_total_canaletas, custo_total_argamassa, custo_total_blocos + custo_total_canaletas + custo_total_argamassa]
+        }))
         st.write(f"Você precisará de aproximadamente {volume_reboco:.2f} m³ de argamassa para reboco.")
-        st.write(f"Custo total dos blocos: R$ {custo_total_blocos:.2f}")
-        st.write(f"Custo total das canaletas: R$ {custo_total_canaletas:.2f}")
-        st.write(f"Custo total da argamassa: R$ {custo_total_argamassa:.2f}")
-        st.write(f"Custo total: R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}")
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
