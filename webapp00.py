@@ -3,6 +3,7 @@ from PIL import Image, UnidentifiedImageError
 import requests
 from io import BytesIO
 import math
+import pandas as pd
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -60,6 +61,9 @@ canaletas = {
     "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
 }
 
+# URL da imagem de argamassa
+imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
+
 # Cálculo do número de blocos e canaletas necessários
 if st.button("Calcular Blocos Necessários"):
     if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
@@ -94,7 +98,7 @@ if st.button("Calcular Blocos Necessários"):
             with col1:
                 st.image(dimensoes["imagem"], width=150)
             with col2:
-                st.write(f"{dimensoes['quantidade']} blocos")
+                st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
 
             custo_total_blocos += dimensoes["quantidade"] * custo_bloco
 
@@ -103,18 +107,22 @@ if st.button("Calcular Blocos Necessários"):
             with col1:
                 st.image(dimensoes["imagem"], width=150)
             with col2:
-                st.write(f"{dimensoes['quantidade']} canaletas")
+                st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
 
             custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
         custo_total_argamassa = volume_reboco * custo_argamassa
 
+        st.write(f"Você precisará de aproximadamente {volume_reboco:.2f} m³ de argamassa para reboco.")
+        st.image(imagem_argamassa, width=150)
+
         # Mostrar resultados totais em forma de tabela
         st.header("Resumo dos Custos")
-        st.table(pd.DataFrame({
+        resultados = pd.DataFrame({
             "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
             "Custo Total (R$)": [custo_total_blocos, custo_total_canaletas, custo_total_argamassa, custo_total_blocos + custo_total_canaletas + custo_total_argamassa]
-        }))
-        st.write(f"Você precisará de aproximadamente {volume_reboco:.2f} m³ de argamassa para reboco.")
+        })
+        st.table(resultados)
+
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
