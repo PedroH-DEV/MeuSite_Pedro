@@ -12,11 +12,12 @@ st.set_page_config(
 )
 
 # Função para carregar imagens a partir de URLs
-def carregar_imagem(url):
+def carregar_imagem(url, width=150):
     try:
         response = requests.get(url)
         response.raise_for_status()  # Verifica se o pedido foi bem-sucedido
-        return Image.open(BytesIO(response.content))
+        img = Image.open(BytesIO(response.content))
+        return img.resize((width, int(img.height * (width / img.width))))
     except (requests.exceptions.RequestException, UnidentifiedImageError) as e:
         st.error(f"Erro ao carregar a imagem: {e}")
         return None
@@ -32,7 +33,7 @@ def obter_precos():
 
 # Imagem principal (URL fornecido)
 img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
-img = carregar_imagem(img_url)
+img = carregar_imagem(img_url, width=600)
 
 # Adicionando título e imagem principal
 st.title("🧱 Calculadora de Blocos | UniConstruction")
@@ -87,15 +88,19 @@ if st.button("Calcular Blocos Necessários"):
         custo_total_blocos = 0
         custo_total_canaletas = 0
 
+        cols = st.columns(2)
+        
         for tipo_bloco, dimensoes in blocos.items():
-            st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
-            st.image(dimensoes["imagem"], caption=tipo_bloco, use_column_width=True)
-            custo_total_blocos += dimensoes["quantidade"] * custo_bloco
-
+            with cols[0]:
+                st.image(dimensoes["imagem"], caption=tipo_bloco, width=150)
+                st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
+                custo_total_blocos += dimensoes["quantidade"] * custo_bloco
+        
         for tipo_canaleta, dimensoes in canaletas.items():
-            st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
-            st.image(dimensoes["imagem"], caption=tipo_canaleta, use_column_width=True)
-            custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
+            with cols[1]:
+                st.image(dimensoes["imagem"], caption=tipo_canaleta, width=150)
+                st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
+                custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
         custo_total_argamassa = volume_reboco * custo_argamassa
 
