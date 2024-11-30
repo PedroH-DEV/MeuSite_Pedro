@@ -49,6 +49,3 @@ if st.button("Enviar Cadastro"):
                f"Data da visita: {data_visita}\n"
                f"Cargo: {cargo}\n"
                f"Empresa: {empresa}")
-               f"Data da visita: {data_visita}\n"
-               f"Cargo: {cargo}\n"
-               f"Empresa: {empresa}")
