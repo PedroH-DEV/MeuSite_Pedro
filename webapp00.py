@@ -35,7 +35,7 @@ st.header("Informe o tamanho da parede:")
 
 largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
 altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
-espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1, max_value=10, step=1, value=1.5)
+espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, value=1.5)
 
 # Custo médio dos materiais
 custo_bloco = st.number_input("Custo médio por bloco (em R$):", min_value=0.0, step=0.1)
