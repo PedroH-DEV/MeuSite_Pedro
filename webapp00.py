@@ -21,6 +21,15 @@ def carregar_imagem(url):
         st.error(f"Erro ao carregar a imagem: {e}")
         return None
 
+# Função para obter preços médios (simulação)
+def obter_precos():
+    # Vamos simular uma API que retorna os preços médios dos materiais
+    return {
+        "custo_bloco": 5.0,  # R$ por bloco
+        "custo_canaleta": 6.0,  # R$ por canaleta
+        "custo_argamassa": 300.0  # R$ por m³
+    }
+
 # Imagem principal (URL fornecido)
 img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
 img = carregar_imagem(img_url)
@@ -36,11 +45,6 @@ st.header("Informe o tamanho da parede:")
 largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
 altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
 espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, value=1.5)
-
-# Custo médio dos materiais
-custo_bloco = st.number_input("Custo médio por bloco (em R$):", min_value=0.0, step=0.1)
-custo_canaleta = st.number_input("Custo médio por canaleta (em R$):", min_value=0.0, step=0.1)
-custo_argamassa = st.number_input("Custo médio por m³ de argamassa (em R$):", min_value=0.0, step=0.1)
 
 # Dimensões dos blocos e canaletas (em metros)
 blocos = {
@@ -62,33 +66,39 @@ if st.button("Calcular Blocos Necessários"):
     if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
         area_parede = largura_parede * altura_parede
         espessura_reboco_m = espessura_reboco_cm / 100  # Converter cm para metros
-        
+
         for tipo_bloco, dimensoes in blocos.items():
             area_bloco = dimensoes["largura"] * dimensoes["altura"]
             quantidade = math.ceil(area_parede / area_bloco)
             blocos[tipo_bloco]["quantidade"] = quantidade
-        
+
         for tipo_canaleta, dimensoes in canaletas.items():
             area_canaleta = dimensoes["largura"] * dimensoes["altura"]
             quantidade = math.ceil(area_parede / area_canaleta * 0.1)  # Suposição: 10% são canaletas
             canaletas[tipo_canaleta]["quantidade"] = quantidade
-        
+
         volume_reboco = area_parede * espessura_reboco_m  # Volume de argamassa para reboco
-        
+
+        # Obter preços médios dos materiais
+        precos = obter_precos()
+        custo_bloco = precos["custo_bloco"]
+        custo_canaleta = precos["custo_canaleta"]
+        custo_argamassa = precos["custo_argamassa"]
+
         st.header("Resultados:")
         custo_total_blocos = 0
         custo_total_canaletas = 0
-        
+
         for tipo_bloco, dimensoes in blocos.items():
             st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
             custo_total_blocos += dimensoes["quantidade"] * custo_bloco
-        
+
         for tipo_canaleta, dimensoes in canaletas.items():
             st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
             custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
-        
+
         custo_total_argamassa = volume_reboco * custo_argamassa
-        
+
         st.write(f"Você precisará de aproximadamente {volume_reboco:.2f} m³ de argamassa para reboco.")
         st.write(f"Custo total dos blocos: R$ {custo_total_blocos:.2f}")
         st.write(f"Custo total das canaletas: R$ {custo_total_canaletas:.2f}")
