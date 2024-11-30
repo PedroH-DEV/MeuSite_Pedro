@@ -33,7 +33,7 @@ def obter_precos():
     }
 
 # Imagem principal (URL fornecido)
-img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
+img_url = "https://fei.edu.br/engenhariadofuturo/images/civilin.jpg"
 img = carregar_imagem(img_url, width=600)
 
 # Adicionando título e imagem principal
@@ -124,18 +124,19 @@ if st.button("Calcular Blocos Necessários"):
         st.header("💵 Resumo dos Custos")
         resultados = pd.DataFrame({
             "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-            "Custo Total (R$)": [custo_total_blocos, custo_total_canaletas, custo_total_argamassa, custo_total_blocos + custo_total_canaletas + custo_total_argamassa]
+            "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
         })
 
         # Estilizar a última linha (Total) em vermelho
         def highlight_total(val):
             if val == resultados["Custo Total (R$)"].iloc[-1]:
-                return 'color: Red'
+                return 'background-color: yellow; color: red; font-weight: bold'
             return ''
 
-        st.table(resultados.style.applymap(highlight_total, subset=['Custo Total (R$)']))
+        st.table(resultados.style.applymap(highlight_total, subset=pd.IndexSlice[-1, :]))
+
+        # Adicionar link para compra dos materiais
+        st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
 
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
-
-
