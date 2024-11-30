@@ -20,8 +20,8 @@ def carregar_imagem(url):
         st.error(f"Erro ao carregar a imagem: {e}")
         return None
 
-# Imagem principal
-img_url = "https://via.placeholder.com/150"  # Use um URL de imagem válido
+# Imagem principal (URL de uma imagem melhorada)
+img_url = "https://via.placeholder.com/600x400.png?text=UniConstruction"  # Use um URL de imagem válido e melhorado
 img = carregar_imagem(img_url)
 
 # Adicionando título e imagem principal
@@ -35,17 +35,21 @@ st.header("Informe o tamanho da parede:")
 largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
 altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
 
-# Dimensões padrão de um bloco (em metros)
-largura_bloco = 0.19  # 19 cm
-altura_bloco = 0.09  # 9 cm
+# Dimensões dos blocos (em metros)
+blocos = {
+    "Bloco de Concreto": {"largura": 0.20, "altura": 0.10},
+    "Bloco Cerâmico": {"largura": 0.19, "altura": 0.09}
+}
 
 # Cálculo do número de blocos necessários
 if st.button("Calcular Blocos Necessários"):
     if largura_parede > 0 and altura_parede > 0:
         area_parede = largura_parede * altura_parede
-        area_bloco = largura_bloco * altura_bloco
-        num_blocos = area_parede / area_bloco
-        st.success(f"Você precisará de aproximadamente {num_blocos:.0f} blocos para construir a parede.")
+        st.header("Resultados:")
+        
+        for tipo_bloco, dimensoes in blocos.items():
+            area_bloco = dimensoes["largura"] * dimensoes["altura"]
+            num_blocos = area_parede / area_bloco
+            st.write(f"Você precisará de aproximadamente {num_blocos:.0f} {tipo_bloco.lower()}s para construir a parede.")
     else:
         st.error("Por favor, insira valores válidos para a largura e altura da parede.")
-
