@@ -124,10 +124,16 @@ if st.button("Calcular Blocos Necessários"):
         st.header("💵 Resumo dos Custos")
         resultados = pd.DataFrame({
             "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-            "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
+            "Custo Total (R$)": [custo_total_blocos, custo_total_canaletas, custo_total_argamassa, custo_total_blocos + custo_total_canaletas + custo_total_argamassa]
         })
-        # Destacar o total
-        st.table(resultados.style.applymap(lambda x: 'color: red' if x == resultados.iloc[-1, 1] else '', subset=pd.IndexSlice[-1, :]))
+
+        # Estilizar a última linha (Total) em vermelho
+        def highlight_total(val):
+            if val == resultados["Custo Total (R$)"].iloc[-1]:
+                return 'color: red'
+            return ''
+
+        st.table(resultados.style.applymap(highlight_total, subset=['Custo Total (R$)']))
 
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
