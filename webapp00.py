@@ -131,4 +131,70 @@ def tela_calculadora():
                 "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
             })
 
-            def highlight_total
+               def highlight_total(row):
+                return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
+
+            st.table(resultados.style.apply(highlight_total, axis=1))
+
+            # Link para compra dos materiais
+            st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
+        else:
+            st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+
+# Tela de orçamento simples
+def tela_orcamento_simples():
+    st.title("📋 Orçamento Simples")
+    st.subheader("Informe as quantidades de materiais que você possui para calcular o custo total:")
+    
+    qtd_blocos = st.number_input("Quantidade de Blocos:", min_value=0, step=1)
+    qtd_canaletas = st.number_input("Quantidade de Canaletas:", min_value=0, step=1)
+    volume_argamassa = st.number_input("Volume de Argamassa (em m³):", min_value=0.0, step=0.1)
+    
+    if st.button("Calcular Orçamento"):
+        precos = obter_precos()
+        custo_blocos = qtd_blocos * precos["custo_bloco"]
+        custo_canaletas = qtd_canaletas * precos["custo_canaleta"]
+        custo_argamassa = volume_argamassa * precos["custo_argamassa"]
+        custo_total = custo_blocos + custo_canaletas + custo_argamassa
+
+        st.header("💵 Resumo do Orçamento")
+        resultados = pd.DataFrame({
+            "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
+            "Custo Total (R$)": [f"R$ {custo_blocos:.2f}", f"R$ {custo_canaletas:.2f}", f"R$ {custo_argamassa:.2f}", f"R$ {custo_total:.2f}"]
+        })
+
+        st.table(resultados)
+
+# Tela de compra
+def tela_comprar():
+    st.title("🛒 Comprar Materiais")
+    st.markdown("### [Compre os materiais necessários diretamente no nosso site parceiro](https://pavibloco.com.br/)")
+    st.image("https://pavibloco.com.br/wp-content/uploads/2018/01/banner.jpg", use_column_width=True)
+
+# Tela de curiosidades
+def tela_curiosidades():
+    st.title("📚 Curiosidades sobre Construção")
+    st.write("Sabia que o concreto é o material de construção mais utilizado no mundo?")
+    st.write("Aqui estão algumas curiosidades interessantes sobre o mundo da construção civil:")
+    st.markdown("""
+    - O cimento foi usado pela primeira vez pelos antigos romanos.
+    - Os arranha-céus modernos usam sistemas avançados de reforço estrutural.
+    - A engenharia civil é considerada uma das profissões mais antigas da humanidade.
+    """)
+    st.image("https://cdn.pixabay.com/photo/2015/01/14/14/52/architecture-598869_1280.jpg", use_column_width=True)
+
+# Controlar a navegação entre as páginas
+if "pagina" not in st.session_state:
+    st.session_state["pagina"] = "inicio"
+
+# Chamar a função correspondente à página
+if st.session_state["pagina"] == "inicio":
+    tela_inicial()
+elif st.session_state["pagina"] == "calculadora":
+    tela_calculadora()
+elif st.session_state["pagina"] == "orcamento_simples":
+    tela_orcamento_simples()
+elif st.session_state["pagina"] == "comprar":
+    tela_comprar()
+elif st.session_state["pagina"] == "curiosidades":
+    tela_curiosidades()
