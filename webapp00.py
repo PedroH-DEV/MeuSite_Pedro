@@ -4,7 +4,7 @@ import requests
 from io import BytesIO
 import math
 import pandas as pd
-from fpdf import FPDF
+import pdfkit
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -33,19 +33,46 @@ def obter_precos():
         "custo_argamassa": 300.0  # R$ por m³
     }
 
-# Função para criar PDF
-def criar_pdf(resultados):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Calculadora de Blocos | UniConstruction", ln=True, align="C")
-    pdf.ln(10)
-
+# Função para criar PDF usando HTML e CSS
+def criar_pdf_html(resultados):
+    html_content = """
+    <html>
+    <head>
+    <style>
+    body { font-family: Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .total { background-color: yellow; color: red; font-weight: bold; }
+    </style>
+    </head>
+    <body>
+    <h1>Calculadora de Blocos | UniConstruction</h1>
+    <h2>Resumo dos Custos</h2>
+    <table>
+      <tr>
+        <th>Material</th>
+        <th>Custo Total (R$)</th>
+      </tr>
+    """
+    
     for index, row in resultados.iterrows():
-        pdf.cell(200, 10, txt=f"{row['Material']}: {row['Custo Total (R$)']}", ln=True, align="L")
-
+        class_name = "total" if index == 3 else ""
+        html_content += f"""
+        <tr class="{class_name}">
+          <td>{row['Material']}</td>
+          <td>{row['Custo Total (R$)']}</td>
+        </tr>
+        """
+    
+    html_content += """
+    </table>
+    </body>
+    </html>
+    """
+    
     pdf_output = BytesIO()
-    pdf.output(pdf_output)
+    pdfkit.from_string(html_content, pdf_output)
     pdf_output.seek(0)
     return pdf_output
 
@@ -137,7 +164,51 @@ if st.button("Calcular Blocos Necessários"):
 
         custo_total_argamassa = volume_reboco * custo_argamassa
 
-       # Mostrar resultados totais em forma de tabela
+        # Função para criar PDF usando HTML e CSS
+def criar_pdf_html(resultados):
+    html_content = """
+    <html>
+    <head>
+    <style>
+    body { font-family: Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .total { background-color: yellow; color: red; font-weight: bold; }
+    </style>
+    </head>
+    <body>
+    <h1>Calculadora de Blocos | UniConstruction</h1>
+    <h2>Resumo dos Custos</h2>
+    <table>
+      <tr>
+        <th>Material</th>
+        <th>Custo Total (R$)</th>
+      </tr>
+    """
+    
+    for index, row in resultados.iterrows():
+        class_name = "total" if index == 3 else ""
+        html_content += f"""
+        <tr class="{class_name}">
+          <td>{row['Material']}</td>
+          <td>{row['Custo Total (R$)']}</td>
+        </tr>
+        """
+    
+    html_content += """
+    </table>
+    </body>
+    </html>
+    """
+    
+    pdf_output = BytesIO()
+    pdfkit.from_string(html_content, pdf_output)
+    pdf_output.seek(0)
+    return pdf_output
+
+# Restante do código principal
+# Mostrar resultados totais em forma de tabela
 st.header("💵 Resumo dos Custos")
 resultados = pd.DataFrame({
     "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
@@ -156,7 +227,7 @@ def highlight_total(row):
 st.table(resultados.style.apply(highlight_total, axis=1))
 
 # Criar PDF e adicionar botão para download
-pdf_file = criar_pdf(resultados)
+pdf_file = criar_pdf_html(resultados)
 st.download_button(
     label="📄 Baixar PDF",
     data=pdf_file,
