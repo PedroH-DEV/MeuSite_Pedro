@@ -138,17 +138,3 @@ if st.button("Calcular Blocos Necessários"):
 
     else:
         st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
-
-# Função para calcular o volume de argamassa considerando as juntas
-def calcular_volume_argamassa(area_parede, espessura_reboco, junta):
-    # ... (implementação)
-
-# Função para gerar o relatório em PDF
-def gerar_relatorio(dados):
-    # ... (implementação usando bibliotecas como FPDF ou ReportLab)
-
-# ... (continuação do código)
-
-if st.button("Calcular e Gerar Relatório"):
-    # ... (cálculos e geração do relatório)
-    st.download_button("Baixar Relatório", data, file_name="relatorio_obra.pdf")
