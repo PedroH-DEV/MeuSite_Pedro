@@ -7,7 +7,7 @@ import pandas as pd
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
-    page_title="UniConstruction",
+    page_title="Calculadora de Blocos - UniConstruction",
     page_icon="🏠",
     layout="wide"
 )
@@ -25,120 +25,106 @@ def carregar_imagem(url, width=150):
 
 # Função para obter preços médios (simulação)
 def obter_precos():
-    # Simulação de preços médios dos materiais
     return {
         "custo_bloco": 5.0,  # R$ por bloco
         "custo_canaleta": 6.0,  # R$ por canaleta
         "custo_argamassa": 300.0  # R$ por m³
     }
 
-# Tela inicial com opções
-def tela_inicial():
-    st.title("🏠 Bem-vindo ao UniConstruction!")
-    st.subheader("Escolha uma das opções abaixo:")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        if st.button("🔢 Calculadora de Blocos"):
-            st.session_state["pagina"] = "calculadora"
-    with col2:
-        if st.button("📋 Orçamento Simples"):
-            st.session_state["pagina"] = "orcamento_simples"
-    with col3:
-        if st.button("🛒 Comprar Materiais"):
-            st.session_state["pagina"] = "comprar"
-    with col4:
-        if st.button("📚 Curiosidades"):
-            st.session_state["pagina"] = "curiosidades"
+# Função para calcular quantidades e custos
+def calcular_quantidades_e_custos(area_parede, espessura_reboco_m, precos, blocos, canaletas):
+    # Calculando quantidades
+    for tipo_bloco, dimensoes in blocos.items():
+        area_bloco = dimensoes["largura"] * dimensoes["altura"]
+        blocos[tipo_bloco]["quantidade"] = math.ceil(area_parede / area_bloco)
 
-# Tela da calculadora de blocos
-def tela_calculadora():
-    st.title("🧱 Calculadora de Blocos | UniConstruction")
-    st.write("### Insira os detalhes abaixo para calcular a quantidade de blocos necessários:")
+    for tipo_canaleta, dimensoes in canaletas.items():
+        area_canaleta = dimensoes["largura"] * dimensoes["altura"]
+        canaletas[tipo_canaleta]["quantidade"] = math.ceil(area_parede / area_canaleta * 0.1)  # Suposição: 10% são canaletas
 
-    largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1, format="%.1f")
-    altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1, format="%.1f")
-    espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, format="%.1f", value=1.5)
-    
-    blocos = {
-        "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhsTOAT5hTiZ8dSyQCYxJqhCT0lnBHHcJu1Q&s"},
-        "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"},
-        "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Bloco-44-Desenho-t%C3%A9cnico.jpg"},
-        "Bloco estrutural 14 x 19 x 14cm": {"largura": 0.14, "altura": 0.19, "quantidade": 0, "imagem": "https://orcamentor.com/media/insumos/44904.png"}
-    }
-    
-    canaletas = {
-        "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
-        "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
-    }
+    volume_reboco = area_parede * espessura_reboco_m
+    custo_total_blocos = sum(d["quantidade"] * precos["custo_bloco"] for d in blocos.values())
+    custo_total_canaletas = sum(d["quantidade"] * precos["custo_canaleta"] for d in canaletas.values())
+    custo_total_argamassa = volume_reboco * precos["custo_argamassa"]
 
-    imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
+    return blocos, canaletas, volume_reboco, custo_total_blocos, custo_total_canaletas, custo_total_argamassa
 
-    if st.button("Calcular Blocos Necessários"):
-        if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
-            area_parede = largura_parede * altura_parede
-            espessura_reboco_m = espessura_reboco_cm / 100  # Converter cm para metros
+# Configurações iniciais
+st.title("🧱 Calculadora de Blocos | UniConstruction")
 
-            for tipo_bloco, dimensoes in blocos.items():
-                area_bloco = dimensoes["largura"] * dimensoes["altura"]
-                quantidade = math.ceil(area_parede / area_bloco)
-                blocos[tipo_bloco]["quantidade"] = quantidade
+img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
+img = carregar_imagem(img_url, width=600)
+if img:
+    st.image(img, use_column_width=True)
 
-            for tipo_canaleta, dimensoes in canaletas.items():
-                area_canaleta = dimensoes["largura"] * dimensoes["altura"]
-                quantidade = math.ceil(area_parede / area_canaleta * 0.1)  # Suposição: 10% são canaletas
-                canaletas[tipo_canaleta]["quantidade"] = quantidade
+# Entrada de dados
+st.header("Informe o tamanho da parede:")
+largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
+altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
+espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, value=1.5)
 
-            volume_reboco = area_parede * espessura_reboco_m  # Volume de argamassa para reboco
+# Dados dos blocos e canaletas
+blocos = {
+    "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "imagem": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhsTOAT5hTiZ8dSyQCYxJqhCT0lnBHHcJu1Q&s"},
+    "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"},
+    "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Bloco-44-Desenho-t%C3%A9cnico.jpg"}
+}
 
-            # Obter preços médios dos materiais
-            precos = obter_precos()
-            custo_bloco = precos["custo_bloco"]
-            custo_canaleta = precos["custo_canaleta"]
-            custo_argamassa = precos["custo_argamassa"]
+canaletas = {
+    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
+    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
+}
 
-            st.header("Resultados:")
-            custo_total_blocos = 0
-            custo_total_canaletas = 0
+imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
 
-            for tipo_bloco, dimensoes in blocos.items():
-                col1, col2 = st.columns([1, 3])
-                with col1:
-                    st.image(dimensoes["imagem"], width=150)
-                with col2:
-                    st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
-                custo_total_blocos += dimensoes["quantidade"] * custo_bloco
+# Cálculo
+if st.button("Calcular Blocos Necessários"):
+    if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
+        area_parede = largura_parede * altura_parede
+        espessura_reboco_m = espessura_reboco_cm / 100
+        precos = obter_precos()
 
-            for tipo_canaleta, dimensoes in canaletas.items():
-                col1, col2 = st.columns([1, 3])
-                with col1:
-                    st.image(dimensoes["imagem"], width=150)
-                with col2:
-                    st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
-                custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
+        blocos, canaletas, volume_reboco, custo_blocos, custo_canaletas, custo_argamassa = calcular_quantidades_e_custos(
+            area_parede, espessura_reboco_m, precos, blocos, canaletas)
 
+        st.header("Resultados:")
+        # Exibindo blocos
+        for tipo_bloco, dados in blocos.items():
             col1, col2 = st.columns([1, 3])
             with col1:
-                st.image(imagem_argamassa, width=150)
+                st.image(dados["imagem"], width=100)
             with col2:
-                st.write(f"Argamassa: {volume_reboco:.2f} m³")
+                st.write(f"{tipo_bloco}: {dados['quantidade']} blocos")
 
-            custo_total_argamassa = volume_reboco * custo_argamassa
+        # Exibindo canaletas
+        for tipo_canaleta, dados in canaletas.items():
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                st.image(dados["imagem"], width=100)
+            with col2:
+                st.write(f"{tipo_canaleta}: {dados['quantidade']} canaletas")
 
-            st.header("💵 Resumo dos Custos")
-            resultados = pd.DataFrame({
-                "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-                "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
-            })
+        # Exibindo argamassa
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(imagem_argamassa, width=100)
+        with col2:
+            st.write(f"Argamassa: {volume_reboco:.2f} m³")
 
-            def highlight_total(row):
-                return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
+        # Exibindo custos
+        st.header("💵 Resumo dos Custos")
+        custos = pd.DataFrame({
+            "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
+            "Custo Total (R$)": [
+                f"R$ {custo_blocos:.2f}",
+                f"R$ {custo_canaletas:.2f}",
+                f"R$ {custo_argamassa:.2f}",
+                f"R$ {custo_blocos + custo_canaletas + custo_argamassa:.2f}"
+            ]
+        })
 
-            st.table(resultados.style.apply(highlight_total, axis=1))
+        st.table(custos)
 
-            # Adicionar link para compra dos materiais
-            st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
-
-        else:
-            st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+        st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
+    else:
+        st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
