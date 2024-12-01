@@ -1,6 +1,11 @@
 import streamlit as st
+from PIL import Image, UnidentifiedImageError
+import requests
+from io import BytesIO
+import math
+import pandas as pd
 
-# Configurações da página
+# Configurações gerais do layout e título da página
 st.set_page_config(
     page_title="Relatório Detalhado do Programa: Calculadora de Blocos",
     page_icon="📊",
@@ -67,7 +72,6 @@ st.write("Esta função retorna um dicionário com os preços médios dos materi
 
 # Interface do Usuário
 st.header("5. Interface do Usuário")
-
 st.subheader("Exibição de Imagem Principal")
 st.code("""
 img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
