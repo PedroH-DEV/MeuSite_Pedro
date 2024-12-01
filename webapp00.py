@@ -112,7 +112,7 @@ imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/camp
 
 # Cálculo do número de blocos e canaletas necessários
 if st.button("Calcular Blocos Necessários"):
-    if largura_parede > 0 and altura_parede > 0 e espessura_reboco_cm > 0:
+    if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
         area_parede = largura_parede * altura_parede
         espessura_reboco_m = espessura_reboco_cm / 100  # Converter cm para metros
 
