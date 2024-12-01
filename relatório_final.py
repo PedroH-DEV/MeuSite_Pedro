@@ -102,8 +102,8 @@ blocos = {
 }
 
 canaletas = {
-    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
-    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
+    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t\u00E9cnico-1.jpg"},
+    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda\u00E7\u00E3o-F39-L14-Canaleta-Desenho-t\u00E9cnico.jpg"}
 }
 
 imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
@@ -156,28 +156,4 @@ if st.button("Calcular Blocos Necessários"):
                 st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
             custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
 
-                col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(imagem_argamassa, width=150)
-        with col2:
-            st.write(f"Argamassa: {volume_reboco:.2f} m³")
-        custo_total_argamassa = volume_reboco * custo_argamassa
-
-        # Mostrar resultados totais em forma de tabela
-        st.header("💵 Resumo dos Custos")
-        resultados = pd.DataFrame({
-            "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-            "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
-        })
-
-        def highlight_total(row):
-            return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
-
-        st.table(resultados.style.apply(highlight_total, axis=1))
-
-        # Adicionar link para compra dos materiais
-        st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
-
-# Mensagem de erro para valores inválidos
-else:
-    st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+        col1, col2 = st.columns
