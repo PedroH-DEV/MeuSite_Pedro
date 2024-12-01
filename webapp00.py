@@ -7,7 +7,7 @@ import pandas as pd
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from fpdf import FPDF  # Caso queira gerar o PDF com fpdf, mantenha essa importação
+import pdfkit
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -107,41 +107,12 @@ def enviar_email(destinatario, pdf_anexo, assunto="Resumo de Custos - UniConstru
     except Exception as e:
         st.error(f"Falha ao enviar e-mail: {e}")
 
-# Imagem principal (URL fornecido)
-img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
-img = carregar_imagem(img_url, width=600)
-
-# Adicionando título e imagem principal
-st.title("🧱 Calculadora de Blocos | UniConstruction")
-if img:
-    st.image(img, use_column_width=True)
-
-# Criando campos de entrada para o cálculo
-st.header("Informe o tamanho da parede:")
-
-largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
-altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
-espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, value=1.5)
-
-# Dimensões dos blocos e canaletas (em metros)
-blocos = {
-    "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhsTOAT5hTiZ8dSyQCYxJqhCT0lnBHHcJu1Q&s"},
-    "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"},
-    "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Bloco-44-Desenho-t%C3%A9cnico.jpg"},
-    "Bloco estrutural 14 x 19 x 14cm": {"largura": 0.14, "altura": 0.19, "quantidade": 0, "imagem": "https://orcamentor.com/media/insumos/44904.png"}
-}
-
-canaletas = {
-    "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
-    "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
-}
-
 # URL da imagem de argamassa
 imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
 
 # Cálculo do número de blocos e canaletas necessários
 if st.button("Calcular Blocos Necessários"):
-    if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
+    if largura_parede > 0 and altura_parede > 0 e espessura_reboco_cm > 0:
         area_parede = largura_parede * altura_parede
         espessura_reboco_m = espessura_reboco_cm / 100  # Converter cm para metros
 
