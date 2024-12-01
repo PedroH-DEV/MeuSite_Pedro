@@ -7,7 +7,7 @@ import pandas as pd
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import pdfkit
+from fpdf import FPDF
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -29,65 +29,37 @@ def carregar_imagem(url, width=150):
 
 # Função para obter preços médios (simulação)
 def obter_precos():
-    # Simulação de preços médios dos materiais
     return {
-        "custo_bloco": 5.0,  # R$ por bloco
-        "custo_canaleta": 6.0,  # R$ por canaleta
-        "custo_argamassa": 300.0  # R$ por m³
+        "custo_bloco": 5.0,
+        "custo_canaleta": 6.0,
+        "custo_argamassa": 300.0
     }
 
-# Função para criar PDF usando HTML e CSS
-def criar_pdf_html(resultados):
-    html_content = """
-    <html>
-    <head>
-    <style>
-    body { font-family: Arial, sans-serif; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid black; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .total { background-color: yellow; color: red; font-weight: bold; }
-    </style>
-    </head>
-    <body>
-    <h1>Calculadora de Blocos | UniConstruction</h1>
-    <h2>Resumo dos Custos</h2>
-    <table>
-      <tr>
-        <th>Material</th>
-        <th>Custo Total (R$)</th>
-      </tr>
-    """
-    
+# Função para criar PDF
+def criar_pdf(resultados):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Calculadora de Blocos | UniConstruction", ln=True, align="C")
+    pdf.ln(10)
+
     for index, row in resultados.iterrows():
-        class_name = "total" if index == 3 else ""
-        html_content += f"""
-        <tr class="{class_name}">
-          <td>{row['Material']}</td>
-          <td>{row['Custo Total (R$)']}</td>
-        </tr>
-        """
-    
-    html_content += """
-    </table>
-    </body>
-    </html>
-    """
-    
+        pdf.cell(200, 10, txt=f"{row['Material']}: {row['Custo Total (R$)']}", ln=True, align="L")
+
     pdf_output = BytesIO()
-    pdfkit.from_string(html_content, pdf_output)
+    pdf.output(pdf_output)
     pdf_output.seek(0)
     return pdf_output
 
 # Função para enviar e-mail
-def enviar_email(destinatario, pdf_anexo, assunto="Resumo de Custos - UniConstruction"):
-    remetente = "phenrique3721@gmail.com"
-    senha = "1234"  # Use uma senha de app gerada para sua conta Google para maior segurança
+def enviar_email(destinatario, pdf_anexo):
+    remetente = "seu_email@gmail.com"
+    senha = "sua_senha"
 
     msg = MIMEMultipart()
     msg['From'] = remetente
     msg['To'] = destinatario
-    msg['Subject'] = assunto
+    msg['Subject'] = "Resumo de Custos - UniConstruction"
 
     corpo_email = "Segue em anexo o resumo dos custos gerado pela Calculadora de Blocos - UniConstruction."
     msg.attach(MIMEText(corpo_email, 'plain'))
@@ -110,25 +82,30 @@ def enviar_email(destinatario, pdf_anexo, assunto="Resumo de Custos - UniConstru
 # URL da imagem de argamassa
 imagem_argamassa = "https://redeconstrulider.com.br/uploads/pagina/elemento/campo/2022/04/Hno9M4VNQBgHgVYJ/09.jpg"
 
+# Parâmetros de entrada
+largura_parede = st.number_input("Largura da parede (em metros):", min_value=0.0, step=0.1)
+altura_parede = st.number_input("Altura da parede (em metros):", min_value=0.0, step=0.1)
+espessura_reboco_cm = st.number_input("Espessura do reboco (em centímetros):", min_value=1.0, max_value=10.0, step=0.1, value=1.5)
+
 # Cálculo do número de blocos e canaletas necessários
 if st.button("Calcular Blocos Necessários"):
     if largura_parede > 0 and altura_parede > 0 and espessura_reboco_cm > 0:
         area_parede = largura_parede * altura_parede
-        espessura_reboco_m = espessura_reboco_cm / 100  # Converter cm para metros
+        espessura_reboco_m = espessura_reboco_cm / 100
 
-        for tipo_bloco, dimensoes in blocos.items():
-            area_bloco = dimensoes["largura"] * dimensoes["altura"]
-            quantidade = math.ceil(area_parede / area_bloco)
-            blocos[tipo_bloco]["quantidade"] = quantidade
+        blocos = {
+            "Bloco estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhsTOAT5hTiZ8dSyQCYxJqhCT0lnBHHcJu1Q&s"},
+            "Bloco estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"},
+            "Bloco estrutural 14 x 19 x 44cm": {"largura": 0.44, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Bloco-44-Desenho-t%C3%A9cnico.jpg"},
+            "Bloco estrutural 14 x 19 x 14cm": {"largura": 0.14, "altura": 0.19, "quantidade": 0, "imagem": "https://orcamentor.com/media/insumos/44904.png"}
+        }
 
-        for tipo_canaleta, dimensoes in canaletas.items():
-            area_canaleta = dimensoes["largura"] * dimensoes["altura"]
-            quantidade = math.ceil(area_parede / area_canaleta * 0.1)  # Suposição: 10% são canaletas
-            canaletas[tipo_canaleta]["quantidade"] = quantidade
+        canaletas = {
+            "Canaleta estrutural 14 x 19 x 29cm": {"largura": 0.29, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/F29-L14-Canaleta-Desenho-t%C3%A9cnico-1.jpg"},
+            "Canaleta estrutural 14 x 19 x 39cm": {"largura": 0.39, "altura": 0.19, "quantidade": 0, "imagem": "https://pavibloco.com.br/wp-content/uploads/2018/01/Veda%C3%A7%C3%A3o-F39-L14-Canaleta-Desenho-t%C3%A9cnico.jpg"}
+        }
 
-        volume_reboco = area_parede * espessura_reboco_m  # Volume de argamassa para reboco
-
-        # Obter preços médios dos materiais
+        volume_reboco = area_parede * espessura_reboco_m
         precos = obter_precos()
         custo_bloco = precos["custo_bloco"]
         custo_canaleta = precos["custo_canaleta"]
@@ -138,36 +115,26 @@ if st.button("Calcular Blocos Necessários"):
         custo_total_blocos = 0
         custo_total_canaletas = 0
 
-        # Exibir imagens e quantidades lado a lado
         for tipo_bloco, dimensoes in blocos.items():
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                st.image(dimensoes["imagem"], width=150)
-            with col2:
-                st.write(f"{tipo_bloco}: {dimensoes['quantidade']} blocos")
-
-            custo_total_blocos += dimensoes["quantidade"] * custo_bloco
+            area_bloco = dimensoes["largura"] * dimensoes["altura"]
+            quantidade = math.ceil(area_parede / area_bloco)
+            blocos[tipo_bloco]["quantidade"] = quantidade
+            custo_total_blocos += quantidade * custo_bloco
+            st.image(dimensoes["imagem"], width=150)
+            st.write(f"{tipo_bloco}: {quantidade} blocos")
 
         for tipo_canaleta, dimensoes in canaletas.items():
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                st.image(dimensoes["imagem"], width=150)
-            with col2:
-                st.write(f"{tipo_canaleta}: {dimensoes['quantidade']} canaletas")
+            area_canaleta = dimensoes["largura"] * dimensoes["altura"]
+            quantidade = math.ceil(area_parede / area_canaleta * 0.1)
+            canaletas[tipo_canaleta]["quantidade"] = quantidade
+            custo_total_canaletas += quantidade * custo_canaleta
+            st.image(dimensoes["imagem"], width=150)
+            st.write(f"{tipo_canaleta}: {quantidade} canaletas")
 
-            custo_total_canaletas += dimensoes["quantidade"] * custo_canaleta
-
-        # Exibir resultado da argamassa lado a lado com a imagem
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            st.image(imagem_argamassa, width=150)
-        with col2:
-            st.write(f"Argamassa: {volume_reboco:.2f} m³")
-
+        st.image(imagem_argamassa, width=150)
+        st.write(f"Argamassa: {volume_reboco:.2f} m³")
         custo_total_argamassa = volume_reboco * custo_argamassa
 
-        # Mostrar resultados totais em forma de tabela
-        st.header("💵 Resumo dos Custos")
         resultados = pd.DataFrame({
             "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
             "Custo Total (R$)": [
@@ -178,14 +145,11 @@ if st.button("Calcular Blocos Necessários"):
             ]
         })
 
-        # Estilizar a última linha (Total) em amarelo com texto vermelho
         def highlight_total(row):
             return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
 
         st.table(resultados.style.apply(highlight_total, axis=1))
-
-        # Criar PDF e adicionar botão para download
-        pdf_file = criar_pdf_html(resultados)
+        pdf_file = criar_pdf(resultados)
         st.download_button(
             label="📄 Baixar PDF",
             data=pdf_file,
@@ -194,16 +158,14 @@ if st.button("Calcular Blocos Necessários"):
         )
 
         # Adicionar campo de e-mail e botão para enviar
-        st.header("📧 Enviar Resumo por E-mail")
-        email = st.text_input("Digite seu e-mail:")
-        if st.button("Enviar E-mail"):
-            if email:
-                enviar_email(email, pdf_file)
-            else:
-                st.error("Por favor, insira um e-mail válido.")
+st.header("📧 Enviar Resumo por E-mail")
+email = st.text_input("Digite seu e-mail:")
 
-        # Adicionar link para compra dos materiais
-        st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
-
+if st.button("Enviar E-mail"):
+    if email:
+        enviar_email(email, pdf_file)
     else:
-        st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+        st.error("Por favor, insira um e-mail válido.")
+
+# Adicionar link para compra dos materiais
+st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
