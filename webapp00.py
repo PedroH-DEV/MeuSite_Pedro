@@ -130,36 +130,90 @@ def tela_calculadora():
                 "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
                 "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
             })
-            
-            # Tela do orçamento simples
-def tela_orcamento_simples():
-    st.title(" Orçamento Simples")
-    # ... (implementar a lógica para um orçamento mais simplificado, talvez com um formulário para o usuário inserir algumas informações básicas)
 
-# Tela de compra de materiais
+            def highlight_total(row):
+                return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
+
+            st.table(resultados.style.apply(highlight_total, axis=1))
+
+            # Adicionar link para compra dos materiais
+            st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
+
+        else:
+            st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+
+# Tela para orçamento simples
+def tela_orcamento_simples():
+    st.title("📋 Orçamento Simples | UniConstruction")
+    st.subheader("Informe os detalhes do projeto:")
+    
+    # Formulário para incluir quantidade dos blocos e canaletas
+    blocos = {
+        "Bloco estrutural 14 x 19 x 29cm": 0,
+        "Bloco estrutural 14 x 19 x 39cm": 0,
+        "Bloco estrutural 14 x 19 x 44cm": 0,
+        "Bloco estrutural 14 x 19 x 14cm": 0,
+        "Canaleta estrutural 14 x 19 x 29cm": 0,
+        "Canaleta estrutural 14 x 19 x 39cm": 0
+    }
+    
+    # Preços dos materiais
+    precos = obter_precos()
+    
+    total_custo = 0
+    for material in blocos.keys():
+        blocos[material] = st.number_input(f"Quantidade de {material}:", min_value=0, step=1)
+        custo = blocos[material] * precos["custo_bloco"] if "Bloco" in material else blocos[material] * precos["custo_canaleta"]
+        st.write(f"Custo de {material}: R$ {custo:.2f}")
+        total_custo += custo
+    
+    argamassa_qtd = st.number_input("Quantidade de argamassa (m³):", min_value=0.0, step=0.1)
+    custo_argamassa = argamassa_qtd * precos["custo_argamassa"]
+    st.write(f"Custo da argamassa: R$ {custo_argamassa:.2f}")
+    total_custo += custo_argamassa
+
+    # Mostrar resultados totais em forma de tabela
+    st.header("💵 Resumo dos Custos")
+    resultados = pd.DataFrame({
+        "Material": list(blocos.keys()) + ["Argamassa", "Total"],
+        "Custo Total (R$)": [f"R$ {blocos[material] * (precos['custo_bloco'] if 'Bloco' in material else precos['custo_canaleta']):.2f}" for material in blocos.keys()] + [f"R$ {custo_argamassa:.2f}", f"R$ {total_custo:.2f}"]
+    })
+
+    def highlight_total(row):
+        return ['background-color: yellow; color: red; font-weight: bold' if row.name == 7 else '' for _ in row]
+
+    st.table(resultados.style.apply(highlight_total, axis=1))
+
+# Tela para redirecionamento de compra
 def tela_comprar():
-    st.title(" Comprar Materiais")
-    # ... (redirecionar para uma loja online ou fornecer uma lista de fornecedores)
+    st.title("🛒 Comprar Materiais")
+    st.markdown("### Acesse o link abaixo para adquirir os materiais necessários:")
+    st.markdown("[Clique aqui para comprar](https://pavibloco.com.br/)")
 
 # Tela de curiosidades
 def tela_curiosidades():
-    st.title(" Curiosidades sobre Construção")
-    # ... (exibir textos, imagens ou vídeos sobre temas relacionados à construção)
+    st.title("📚 Curiosidades sobre Construção")
+    st.write("Aqui estão algumas curiosidades interessantes sobre o mundo da construção civil:")
+    curiosidades = [
+        "O concreto é o material de construção mais utilizado no mundo.",
+        "O Taj Mahal levou cerca de 22 anos para ser concluído.",
+        "A Torre Eiffel foi construída em 2 anos, 2 meses e 5 dias.",
+        "O cimento moderno foi inventado em 1824 por Joseph Aspdin."
+    ]
+    for curiosidade in curiosidades:
+        st.markdown(f"- {curiosidade}")
 
-# Função principal que renderiza a página correta com base no estado da sessão
-def main():
-    if "pagina" not in st.session_state:
-        tela_inicial()
-    else:
-        pagina = st.session_state["pagina"]
-        if pagina == "calculadora":
-            tela_calculadora()
-        elif pagina == "orcamento_simples":
-            tela_orcamento_simples()
-        elif pagina == "comprar":
-            tela_comprar()
-        elif pagina == "curiosidades":
-            tela_curiosidades()
+# Gerenciamento de navegação
+if "pagina" not in st.session_state:
+    st.session_state["pagina"] = "inicio"
 
-if __name__ == "__main__":
-    main()
+if st.session_state["pagina"] == "inicio":
+    tela_inicial()
+elif st.session_state["pagina"] == "calculadora":
+    tela_calculadora()
+elif st.session_state["pagina"] == "orcamento_simples":
+    tela_orcamento_simples()
+elif st.session_state["pagina"] == "comprar":
+    tela_comprar()
+elif st.session_state["pagina"] == "curiosidades":
+    tela_curiosidades()
