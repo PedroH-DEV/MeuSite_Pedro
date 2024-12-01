@@ -4,6 +4,7 @@ import requests
 from io import BytesIO
 import math
 import pandas as pd
+from fpdf import FPDF
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -136,16 +137,26 @@ if st.button("Calcular Blocos Necessários"):
         # Adicionar link para compra dos materiais
         st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
 
-    else:
-        st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
+       # Gerar PDF
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, txt="Relatório de Custos", ln=1, align="C")
+pdf.ln(10)
 
-        # gerar pdf
-        import pdfkit
-        from fpdf import FPDF
-        from io import BytesIO
+# Adicionar o conteúdo do relatório ao PDF
+for index, row in resultados.iterrows():
+    pdf.cell(200, 10, txt=f"{row['Material']}: {row['Custo Total (R$)']}", ln=1, align="L")
 
-        # Configurações do PDF
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Relatório de Custos", ln=1, align="C")
+# Salvar o PDF em um objeto BytesIO
+pdf_output = BytesIO()
+pdf.output(pdf_output)
+pdf_output.seek(0)
+
+# Adicionar um botão para baixar o PDF
+st.download_button(
+    label="📄 Baixar PDF",
+    data=pdf_output,
+    file_name="relatorio_custos.pdf",
+    mime="application/pdf"
+)
