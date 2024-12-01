@@ -4,6 +4,7 @@ import requests
 from io import BytesIO
 import math
 import pandas as pd
+from fpdf import FPDF
 
 # Configurações gerais do layout e título da página
 st.set_page_config(
@@ -11,10 +12,6 @@ st.set_page_config(
     page_icon="🏠",
     layout="wide"
 )
-
-# Opções de blocos e canaletas em dropdown
-    tipos_blocos = list(blocos.keys())
-    tipo_bloco_selecionado = st.selectbox("Escolha o tipo de bloco:", tipos_blocos)
 
 # Função para carregar imagens a partir de URLs
 def carregar_imagem(url, width=150):
@@ -35,6 +32,22 @@ def obter_precos():
         "custo_canaleta": 6.0,  # R$ por canaleta
         "custo_argamassa": 300.0  # R$ por m³
     }
+
+# Função para criar PDF
+def criar_pdf(resultados):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Calculadora de Blocos | UniConstruction", ln=True, align="C")
+    pdf.ln(10)
+
+    for index, row in resultados.iterrows():
+        pdf.cell(200, 10, txt=f"{row['Material']}: {row['Custo Total (R$)']}", ln=True, align="L")
+
+    pdf_output = BytesIO()
+    pdf.output(pdf_output)
+    pdf_output.seek(0)
+    return pdf_output
 
 # Imagem principal (URL fornecido)
 img_url = "https://www.cronoshare.com.br/blog/wp-content/uploads/2019/02/Quanto-custa-a-construcao-de-um-muro.jpg"
@@ -124,29 +137,32 @@ if st.button("Calcular Blocos Necessários"):
 
         custo_total_argamassa = volume_reboco * custo_argamassa
 
-        # Mostrar resultados totais em forma de tabela
-        st.header("💵 Resumo dos Custos")
-        resultados = pd.DataFrame({
-            "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
-            "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
-        })
+       # Mostrar resultados totais em forma de tabela
+st.header("💵 Resumo dos Custos")
+resultados = pd.DataFrame({
+    "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
+    "Custo Total (R$)": [
+        f"R$ {custo_total_blocos:.2f}",
+        f"R$ {custo_total_canaletas:.2f}",
+        f"R$ {custo_total_argamassa:.2f}",
+        f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"
+    ]
+})
 
-        # Estilizar a última linha (Total) em vermelho
-        def highlight_total(row):
-            return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
+# Estilizar a última linha (Total) em amarelo com texto vermelho
+def highlight_total(row):
+    return ['background-color: yellow; color: red; font-weight: bold' if row.name == 3 else '' for _ in row]
 
-        st.table(resultados.style.apply(highlight_total, axis=1))
+st.table(resultados.style.apply(highlight_total, axis=1))
 
-        # Adicionar link para compra dos materiais
-        st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
+# Criar PDF e adicionar botão para download
+pdf_file = criar_pdf(resultados)
+st.download_button(
+    label="📄 Baixar PDF",
+    data=pdf_file,
+    file_name="resumo_custos.pdf",
+    mime="application/pdf"
+)
 
-    else:
-        st.error("Por favor, insira valores válidos para a largura, altura da parede e espessura do reboco.")
-
-        # Gerar relatório em PDF (exemplo usando FPDF)
-    def gerar_relatorio(dados):
-        # ... (implementação usando FPDF)
-
-    if st.button("Calcular e Gerar Relatório"):
-        # ... (cálculos e geração do relatório)
-        st.download_button("Baixar Relatório", data, file_name="relatorio_obra.pdf")
+# Adicionar link para compra dos materiais
+st.markdown("### [Compre os materiais necessários aqui](https://pavibloco.com.br/)")
