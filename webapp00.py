@@ -130,9 +130,7 @@ def tela_calculadora():
                 "Material": ["Blocos", "Canaletas", "Argamassa", "Total"],
                 "Custo Total (R$)": [f"R$ {custo_total_blocos:.2f}", f"R$ {custo_total_canaletas:.2f}", f"R$ {custo_total_argamassa:.2f}", f"R$ {custo_total_blocos + custo_total_canaletas + custo_total_argamassa:.2f}"]
             })
-
-            def highlight_total
-
+            
             # Tela do orçamento simples
 def tela_orcamento_simples():
     st.title(" Orçamento Simples")
