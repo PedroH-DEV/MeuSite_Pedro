@@ -81,8 +81,8 @@ def criar_pdf_html(resultados):
 
 # Função para enviar e-mail
 def enviar_email(destinatario, pdf_anexo, assunto="Resumo de Custos - UniConstruction"):
-    remetente = "seu_email@gmail.com"
-    senha = "sua_senha"  # Use uma senha de app gerada para sua conta Google para maior segurança
+    remetente = "phenrique3721@gmail.com"
+    senha = "1234"  # Use uma senha de app gerada para sua conta Google para maior segurança
 
     msg = MIMEMultipart()
     msg['From'] = remetente
